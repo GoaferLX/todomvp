@@ -8,6 +8,9 @@ import (
 	"text/template"
 )
 
+var tpls *template.Template
+var err error
+
 type ToDo struct {
 	Id        int // want this later
 	Name      string
@@ -35,25 +38,14 @@ func (l *List) setNotCompleted(id int) {
 	l.Items[id].Completed = false
 }
 
-func loadTemplate(w http.ResponseWriter, tpl string, l *List) {
-	t, err := template.ParseFiles(tpl + ".html")
+func renderTemplate(w http.ResponseWriter, tplName string, data []ToDo) {
+	err := tpls.ExecuteTemplate(w, tplName, data)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("Could not execute error: %v", err)
 	}
-	t.Execute(w, l)
 
 }
-func handler(w http.ResponseWriter, r *http.Request) {
-	/*l := &List{
-		id: 2,
-		Items: []ToDo{
-			{Id: 1, Name: "test", Completed: false},
-			{Id: 2, Name: "second test", Completed: false},
-		},
-	}
-	*/
-	l := &List{id: 1}
+func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
 		item := r.FormValue("item")
@@ -65,25 +57,24 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			l.setNotCompleted(id)
 		case "/delete":
 			l.delete(id)
-		default:
+		case "/add":
 			l.add(item)
 		}
 
 	}
-	templates, err := template.ParseGlob("*.html")
+	renderTemplate(w, "template.html", l.Items)
+
+}
+func init() {
+	tpls, err = template.ParseGlob("*.html")
 	if err != nil {
 		log.Println("The template(s) could not be parsed")
 	}
-	err = templates.ExecuteTemplate(w, "template.html", l.Items)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-
 }
 
 func main() {
-
-	http.HandleFunc("/", handler)
+	//http.HandleFunc("/", handler)
+	http.Handle("/", &List{})
 	log.Print("Listening on port 3000")
 	log.Fatal(http.ListenAndServe(":3000", nil))
 }
