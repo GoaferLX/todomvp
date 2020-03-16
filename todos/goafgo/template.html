@@ -24,12 +24,12 @@
 
     <section class="items">
       <h2>Todo list</h2>
-      <ul>{{range .}}{{if .Done}}
+      <ul>{{range .}}{{if .Completed}}
         <li class="todo done">
           <span class="item-name">
             <s>{{.Name}}</s>
           </span>
-          <form method="post" action="/not-done">
+          <form method="post" action="/notdone">
             <input type="hidden" name="item" value="{{.Id}}"/>
             <input class="uncomplete"
                    type="submit"
@@ -61,6 +61,6 @@
           </form>
         </li>
 {{end}}{{end}}</ul>
-    </section>
+</section>
   </body>
 </html>
