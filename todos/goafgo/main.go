@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -12,7 +11,7 @@ var tpls *template.Template
 var err error
 
 type ToDo struct {
-	Id        int // want this later
+	ID        int // want this later
 	Name      string
 	Completed bool
 }
@@ -23,28 +22,36 @@ type List struct {
 }
 
 func (l *List) add(name string) {
-	l.Items = append(l.Items, ToDo{Id: l.id, Name: name, Completed: false})
+
+	l.Items = append(l.Items, ToDo{ID: l.id, Name: name, Completed: false})
 	l.id++
-	fmt.Println("Item added, list is now: ", l)
 }
 
 func (l *List) delete(id int) {
-	l.Items = append(l.Items[:id], l.Items[id+1:]...)
+	var slice []ToDo
+	for _, todo := range l.Items {
+		if todo.ID != id {
+			slice = append(slice, todo)
+		}
+	}
+	l.Items = slice
 }
+
 func (l *List) setCompleted(id int) {
-	l.Items[id].Completed = true
+	for i, item := range l.Items {
+		if item.ID == id {
+			l.Items[i].Completed = true
+		}
+	}
 }
 func (l *List) setNotCompleted(id int) {
-	l.Items[id].Completed = false
-}
-
-func renderTemplate(w http.ResponseWriter, tplName string, data []ToDo) {
-	err := tpls.ExecuteTemplate(w, tplName, data)
-	if err != nil {
-		log.Printf("Could not execute error: %v", err)
+	for i, item := range l.Items {
+		if item.ID == id {
+			l.Items[i].Completed = false
+		}
 	}
-
 }
+
 func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
@@ -68,10 +75,16 @@ func (l *List) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func init() {
 	tpls, err = template.ParseGlob("*.html")
 	if err != nil {
-		log.Println("The template(s) could not be parsed")
+		log.Print("The template(s) could not be parsed")
 	}
 }
+func renderTemplate(w http.ResponseWriter, tplName string, data []ToDo) {
+	err := tpls.ExecuteTemplate(w, tplName, data)
+	if err != nil {
+		log.Printf("Could not execute error: %v", err)
+	}
 
+}
 func main() {
 	//http.HandleFunc("/", handler)
 	http.Handle("/", &List{})

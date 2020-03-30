@@ -30,13 +30,13 @@
             <s>{{.Name}}</s>
           </span>
           <form method="post" action="/notdone">
-            <input type="hidden" name="item" value="{{.Id}}"/>
+            <input type="hidden" name="item" value="{{.ID}}"/>
             <input class="uncomplete"
                    type="submit"
                    value="Mark not done '{{.Name}}'" />
           </form>
           <form method="post" action="/delete">
-            <input type="hidden" name="item" value="{{.Id}}"/>
+            <input type="hidden" name="item" value="{{.ID}}"/>
             <input class="delete"
                    type="submit"
                    value="Delete '{{.Name}}'" />
@@ -48,13 +48,13 @@
             {{.Name}}
           </span>
           <form method="post" action="/done">
-            <input type="hidden" name="item" value="{{.Id}}"/>
+            <input type="hidden" name="item" value="{{.ID}}"/>
             <input class="complete"
                    type="submit"
                    value="Mark done '{{.Name}}'" />
           </form>
           <form method="post" action="/delete">
-            <input type="hidden" name="item" value="{{.Id}}"/>
+            <input type="hidden" name="item" value="{{.ID}}"/>
             <input class="delete"
                    type="submit"
                    value="Delete '{{.Name}}'" />
